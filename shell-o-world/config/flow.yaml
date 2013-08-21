@@ -1,0 +1,75 @@
+amqp:
+    connection_attempts: 40
+    port: 5672
+    prefetch_count: 10
+    retry_delay: 30
+    socket_timeout: 30
+
+
+bindings:
+    flow:
+        fork_submit:
+            - shell_command.fork.submit
+
+        petri_create_token:
+            - petri.place.create_token
+
+        petri_notify_place:
+            - petri.place.notify
+
+        petri_notify_transition:
+            - petri.transition.notify
+
+
+orchestrator:
+    create_token_exchange: flow
+    create_token_routing_key: petri.place.create_token
+    create_token_queue: petri_create_token
+
+    notify_place_exchange: flow
+    notify_place_routing_key: petri.place.notify
+    notify_place_queue: petri_notify_place
+
+    notify_transition_exchange: flow
+    notify_transition_routing_key: petri.transition.notify
+    notify_transition_queue: petri_notify_transition
+
+
+shell_command:
+    resource_types: {}
+
+    fork:
+        exchange: flow
+        submit_routing_key: shell_command.fork.submit
+        queue: fork_submit
+
+        response_routing_key: petri.place.create_token
+
+
+statsd_configuration:
+    STATSD_HOST: 'apipe-statsd'
+    STATSD_BUCKET_PREFIX: 'test.flow'
+
+logging:
+    version: 1
+    disable_existing_loggers: true
+
+    formatters:
+        color:
+            '()': flow.util.log_formatters.ColorFormatter
+            fmt: '%(asctime)s %(levelname)-23s %(name)-60s %(funcName)-50s %(lineno)5d: %(message)s'
+
+    root:
+        level: INFO
+        handlers: [console]
+
+    loggers:
+        pika:
+            level: INFO
+        flow:
+            level: INFO
+
+    handlers:
+        console:
+            class: logging.StreamHandler
+            formatter: color
