@@ -39,7 +39,7 @@ class HelloWorld(CommandBase):
     def _execute(self, parsed_arguments):
         start_place_index = self.setup_net()
 
-        color_group = self.net.add_color_group(1)
+        color_group = self.net.add_color_group(size=1)
         color = color_group.begin  # The first color in the color group.
 
         return self.service_locator['orchestrator'].create_token(self.net.key,
