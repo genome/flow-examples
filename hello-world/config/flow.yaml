@@ -4,6 +4,7 @@ amqp:
     prefetch_count: 10
     retry_delay: 30
     socket_timeout: 30
+    heartbeat_interval: 600
 
 
 bindings:
